@@ -1,0 +1,4 @@
+next install
+
+npm i hardhat
+npx hardhat - create simple javascript project
