@@ -34,7 +34,9 @@ const NavBar = () => {
             </ul>
           </div>
 
-          {!currentAccount && (
+          {currentAccount ? (
+            <span className="text-white">Connected</span>
+          ) : (
             <ul className="flex items-center hidden  space-x-8 lg:flex">
               <li>
                 <button
