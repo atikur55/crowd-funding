@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { ethers, parseEther } from "ethers";
 import Web3Modal from "web3modal";
 
 // INTERNAL IMPORTS
@@ -26,9 +26,11 @@ export const CrowdFundingProvider = ({ children }) => {
     const { title, description, amount, deadline } = campaign;
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
-
+    // console.log(ethers.getDefaultProvider());
+    // return;
+    // const provider = new ethers.providers.Web3Provider(connection);
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
     const contract = fetchContract(signer);
 
     try {
@@ -36,10 +38,9 @@ export const CrowdFundingProvider = ({ children }) => {
         currentAccount,
         title,
         description,
-        ethers.utils.parseEther(amount, 18),
+        parseEther(amount, 18),
         new Date(deadline).getTime()
       );
-
       await transaction.wait();
       console.log("Campaign created successfully!");
     } catch (error) {
