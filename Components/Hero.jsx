@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React, { useState } from "react";
 const Hero = ({ titleData, createCampaign }) => {
-  const [campaign, setCampagin] = useState({
+  const [campaign, setCampaign] = useState({
     title: "",
     description: "",
     amount: "",
@@ -12,9 +12,8 @@ const Hero = ({ titleData, createCampaign }) => {
   const createNewCampaign = async (e) => {
     e.preventDefault();
     try {
-      console.log(campaign);
-
       const data = await createCampaign(campaign);
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
@@ -74,7 +73,7 @@ const Hero = ({ titleData, createCampaign }) => {
                     </label>
                     <input
                       onChange={(e) =>
-                        setCampagin({ ...campaign, title: e.target.value })
+                        setCampaign({ ...campaign, title: e.target.value })
                       }
                       placeholder="Title"
                       required
@@ -93,7 +92,7 @@ const Hero = ({ titleData, createCampaign }) => {
                     </label>
                     <input
                       onChange={(e) =>
-                        setCampagin({
+                        setCampaign({
                           ...campaign,
                           description: e.target.value,
                         })
@@ -115,7 +114,7 @@ const Hero = ({ titleData, createCampaign }) => {
                     </label>
                     <input
                       onChange={(e) =>
-                        setCampagin({
+                        setCampaign({
                           ...campaign,
                           amount: e.target.value,
                         })
@@ -137,7 +136,7 @@ const Hero = ({ titleData, createCampaign }) => {
                     </label>
                     <input
                       onChange={(e) =>
-                        setCampagin({
+                        setCampaign({
                           ...campaign,
                           deadline: e.target.value,
                         })

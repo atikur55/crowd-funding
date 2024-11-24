@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ethers, parseEther } from "ethers";
+import { ethers, parseEther, formatEther } from "ethers";
 import Web3Modal from "web3modal";
 
 // INTERNAL IMPORTS
@@ -26,9 +26,6 @@ export const CrowdFundingProvider = ({ children }) => {
     const { title, description, amount, deadline } = campaign;
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
-    // console.log(ethers.getDefaultProvider());
-    // return;
-    // const provider = new ethers.providers.Web3Provider(connection);
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = fetchContract(signer);
@@ -41,6 +38,7 @@ export const CrowdFundingProvider = ({ children }) => {
         parseEther(amount, 18),
         new Date(deadline).getTime()
       );
+
       await transaction.wait();
       console.log("Campaign created successfully!");
     } catch (error) {
@@ -49,49 +47,54 @@ export const CrowdFundingProvider = ({ children }) => {
   };
 
   const getCampaigns = async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = new ethers.JsonRpcProvider(
+      "https://polygon-amoy.g.alchemy.com/v2/tRPpvon7YNh4r1vYiVA0AbOmAMZ2x28g"
+    );
     const contract = fetchContract(provider);
-
     const campaigns = await contract.getCampaigns();
-
     const parsedCampaigns = campaigns.map((campaign, i) => ({
       owner: campaign.owner,
       title: campaign.title,
       description: campaign.description,
-      target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
-      amountCollected: ethers.utils.formatEther(
-        campaign.amountCollected.toString()
-      ),
+      target: formatEther(campaign.target.toString()),
+      deadline: campaign.deadline.toNumber
+        ? campaign.deadline.toNumber()
+        : Number(campaign.deadline),
+      amountCollected: formatEther(campaign.amountCollected.toString()),
       pId: i,
     }));
+    console.log(parsedCampaigns);
+
     return parsedCampaigns;
   };
 
   const getUserCampaigns = async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = new ethers.JsonRpcProvider(
+      "https://polygon-amoy.g.alchemy.com/v2/tRPpvon7YNh4r1vYiVA0AbOmAMZ2x28g"
+    );
+
     const contract = fetchContract(provider);
-
     const allCampaigns = await contract.getCampaigns();
-
     const accounts = await window.ethereum.request({
       method: "eth_accounts",
     });
     const currentAccount = accounts[0];
+    console.log(currentAccount);
 
     const filteredCampaigns = allCampaigns.filter(
-      (campaign) => campaign.owner === currentAccount
+      (campaign) =>
+        campaign.owner.toLowerCase() === currentAccount.toLowerCase()
     );
 
     const userData = filteredCampaigns.map((campaign, i) => ({
       owner: campaign.owner,
       title: campaign.title,
       description: campaign.description,
-      target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
-      amountCollected: ethers.utils.formatEther(
-        campaign.amountCollected.toString()
-      ),
+      target: formatEther(campaign.target.toString()),
+      deadline: campaign.deadline.toNumber
+        ? campaign.deadline.toNumber()
+        : Number(campaign.deadline),
+      amountCollected: formatEther(campaign.amountCollected.toString()),
       pId: i,
     }));
 
@@ -101,12 +104,16 @@ export const CrowdFundingProvider = ({ children }) => {
   const donate = async (pId, amount) => {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
+    // const provider = new ethers.providers.Web3Provider(connection);
+    // const signer = provider.getSigner();
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
     const contract = fetchContract(signer);
 
     const campaignData = await contract.donateToCampaign(pId, {
-      value: ethers.utils.parseEther(amount),
+      value: parseEther(amount),
     });
 
     await campaignData.wait();
@@ -115,7 +122,9 @@ export const CrowdFundingProvider = ({ children }) => {
   };
 
   const getDonations = async (pId) => {
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = new ethers.JsonRpcProvider(
+      "https://rpc-amoy.polygon.technology"
+    );
     const contract = fetchContract(provider);
 
     const donations = await contract.getDonators(pId);
@@ -125,7 +134,7 @@ export const CrowdFundingProvider = ({ children }) => {
     for (let i = 0; i < numberOfDonations; i++) {
       parsedDonations.push({
         donator: donations[0][i],
-        donation: ethers.utils.formatEther(donations[1][i].toString()),
+        donation: formatEther(donations[1][i].toString()),
       });
     }
 

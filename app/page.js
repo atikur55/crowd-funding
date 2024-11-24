@@ -5,22 +5,34 @@ import { CrowdFundingContext } from "@/Context/CrowdFunding";
 import { Hero, Card, PopUp } from "@/Components";
 
 const Home = () => {
-  const { titleData, createCampaign, donate, getDonations, currentAccount } =
-    useContext(CrowdFundingContext);
+  const {
+    titleData,
+    createCampaign,
+    donate,
+    getDonations,
+    currentAccount,
+    getCampaigns,
+    getUserCampaigns,
+  } = useContext(CrowdFundingContext);
 
-  const [allCampaigns, setAllCampaings] = useState();
+  const [allCampaigns, setAllCampaigns] = useState();
   const [userCampaigns, setUserCampaigns] = useState();
 
   useEffect(() => {
-    // const getCampaignsData = getCampaigns();
-    // const getUserCampaignsData = getUserCampaigns();
-    // return async () => {
-    //   const allData = await getCampaignsData;
-    //   const userData = await getUserCampaignsData;
-    //   setAllCampaings(allData);
-    //   setUserCampaigns(userData);
-    // };
-  }, []);
+    const fetchCampaignData = async () => {
+      try {
+        const allData = await getCampaigns();
+        const userData = await getUserCampaigns();
+
+        setAllCampaigns(allData);
+        setUserCampaigns(userData);
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+      }
+    };
+
+    fetchCampaignData();
+  }, [getCampaigns, getUserCampaigns]);
 
   const [openModal, setOpenModal] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState();
